@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>websocket demo</title>
+</head>
+<body>
+请输入要发送的消息：
+<input type="text" id="text">
+<button onclick="sendMsgToServer()">发送信息</button>
+<hr>
+收到服务端信息为：
+<div id="read_from_server"></div>
+<hr>
+<button onclick="closeWebSocket()">关闭WebSocket</button>
+
+<script>
+    var websocket = null;
+    if('WebSocket' in window){
+        alert("支持WebSocket");
+        //后端
+        websocket = new WebSocket("ws://localhost:8080/websocket");
+    }else{
+        alert("不支持WebSocket");
+    }
+    //浏览器与服务端建立连接后回调方法
+    websocket.open = function(){
+        console.log("websocket连接成功");
+    }
+    //简历websocket连接失败
+    websocket.onerror = function(){
+        console.log("websocket连接失败");
+    }
+    //浏览器收到服务器信息
+    websocket.onmessage = function(event){
+        var msg = event.data;
+        flush(msg);
+    }
+    //关闭客户端websocket
+    websocket.close = function () {
+        closeWebSocket();
+    }
+    //窗口关闭，主动将当前窗口的websocket关闭
+    window.onbeforeunload = function(){
+       closeWebSocket();
+    }
+    //将浏览器信息发送到服务器
+    function sendMsgToServer() {
+        var msg = document.getElementById("text").value;
+        websocket.send(msg);
+    }
+    //刷新div
+    function flush() {
+        document.getElementById("read_from_server").innerText = msg;
+    }
+    function closeWebSocket() {
+        websocket.close();
+    }
+</script>
+</body>
+</html>
